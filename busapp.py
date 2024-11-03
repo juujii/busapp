@@ -1,27 +1,23 @@
 import requests
 from datetime import datetime, timezone
 import time
-import json
-from pathlib import Path
 from rpi_lcd import LCD
 
 # TfL API endpoints
 SOUTH_URL = "https://api.tfl.gov.uk/StopPoint/490006169N1/arrivals"
 NORTH_URL = "https://api.tfl.gov.uk/StopPoint/490015109W/arrivals"
-CACHE_FILE = "bus_cache.json"
 
 class BusTimeDisplay:
     def __init__(self):
-        self.cache = {'south': [], 'north': []}
         try:
             self.lcd = LCD()
             self.lcd.clear()
         except Exception as e:
             print(f"Error initializing LCD: {e}")
             raise
-        
+
     def get_bus_arrivals(self, url):
-        """Get bus arrivals with error handling and fallback to cache"""
+        """Get bus arrivals with error handling"""
         try:
             response = requests.get(url, timeout=5)
             response.raise_for_status()
@@ -56,12 +52,28 @@ class BusTimeDisplay:
                 'minutes': 0,
                 'arrival_time': '--:--'
             })
-        return arrivals[:2]  # Ensure we never return more than 2
+        return arrivals[:2]
 
     def format_line(self, direction, bus):
-        """Format line to exactly 20 characters"""
-        # Format: "South: 242 14:33 3m "
-        return f"{direction}: {bus['line']} {bus['arrival_time']} {bus['minutes']}m".ljust(20)
+        """Format line with fixed-width spacing
+        Format: "South: 242 14:33 3m "
+                "South: 12  14:33 3m "
+                "North: 242 14:33 3m "
+                "North: 12  14:33 3m "
+        """
+        # Direction (6 chars) + ': ' (2 chars) = 8 chars total
+        direction_part = f"{direction}: "
+        
+        # Bus line number (3 chars, right-padded with spaces)
+        bus_part = f"{bus['line']}".ljust(3)
+        
+        # One space separator
+        space = " "
+        
+        # Time (5 chars) + space + minutes (2 chars) + 'm' = 9 chars
+        time_part = f"{bus['arrival_time']} {bus['minutes']}m"
+        
+        return f"{direction_part}{bus_part}{space}{time_part}"
 
     def update_display(self, lines):
         """Update LCD display with the given lines"""
@@ -70,7 +82,6 @@ class BusTimeDisplay:
                 self.lcd.text(line, i)
         except Exception as e:
             print(f"Error updating LCD: {e}")
-            # Try to reinitialize LCD
             try:
                 self.lcd = LCD()
                 for i, line in enumerate(lines, start=1):
@@ -117,7 +128,6 @@ if __name__ == "__main__":
         display.run()
     except Exception as e:
         print(f"Fatal error: {e}")
-        # Try one last time to clear the display
         try:
             LCD().clear()
         except:
