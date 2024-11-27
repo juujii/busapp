@@ -4,7 +4,7 @@ import time
 from rpi_lcd import LCD
 
 # TfL API endpoints
-SOUTH_URL = "https://api.tfl.gov.uk/StopPoint/490006169N1/arrivals"
+SOUTH_URL = "https://api.tfl.gov.uk/StopPoint/490006169S1/arrivals"
 NORTH_URL = "https://api.tfl.gov.uk/StopPoint/490015109W/arrivals"
 
 class BusTimeDisplay:
@@ -23,25 +23,27 @@ class BusTimeDisplay:
             response.raise_for_status()
             data = response.json()
             
-            sorted_arrivals = sorted(data, key=lambda x: x['expectedArrival'])
             arrivals = []
             now = datetime.now(timezone.utc)
             
-            for arrival in sorted_arrivals[:2]:
+            # Process all arrivals
+            for arrival in data:
                 expected_time = datetime.fromisoformat(arrival['expectedArrival'].replace('Z', '+00:00'))
                 minutes_until = int((expected_time - now).total_seconds() / 60)
-                arrival_time = expected_time.astimezone().strftime('%H:%M')
                 
-                if minutes_until >= 0:
+                if minutes_until >= 0:  # Only include future arrivals
                     arrivals.append({
                         'line': arrival['lineName'],
                         'minutes': minutes_until,
-                        'arrival_time': arrival_time
+                        'arrival_time': expected_time.astimezone().strftime('%H:%M')
                     })
             
-            return self.pad_arrivals(arrivals)
+            # Simply sort by minutes until arrival and take first two
+            sorted_arrivals = sorted(arrivals, key=lambda x: x['minutes'])[:2]
+            return self.pad_arrivals(sorted_arrivals)
             
-        except requests.RequestException:
+        except requests.RequestException as e:
+            print(f"API Error: {e}")
             return self.pad_arrivals([])
     
     def pad_arrivals(self, arrivals):
@@ -56,24 +58,21 @@ class BusTimeDisplay:
 
     def format_line(self, direction, bus):
         """Format line with fixed-width spacing
-        Format: "South: 242 14:33 3m "
-                "South: 12  14:33 3m "
-                "North: 242 14:33 3m "
-                "North: 12  14:33 3m "
+        Format for LCD display:
+        "N: Bus 76  17:15 9m"
+        "N: Bus 141 17:16 10m"
         """
-        # Direction (6 chars) + ': ' (2 chars) = 8 chars total
-        direction_part = f"{direction}: "
+        # Direction (2 chars) + ': ' = 4 chars total
+        direction_part = f"{direction[0]}: "  # Just take first letter
         
-        # Bus line number (3 chars, right-padded with spaces)
-        bus_part = f"{bus['line']}".ljust(3)
+        # "Bus " prefix + bus line number (3 chars, right-padded with spaces)
+        bus_part = f"Bus {bus['line']}".ljust(7)
         
-        # One space separator
-        space = " "
+        # Time (5 chars) + space + Minutes (2 chars) + 'm'
+        minutes_str = str(bus['minutes']).rjust(2)
+        time_part = f"{bus['arrival_time']} {minutes_str}m"
         
-        # Time (5 chars) + space + minutes (2 chars) + 'm' = 9 chars
-        time_part = f"{bus['arrival_time']} {bus['minutes']}m"
-        
-        return f"{direction_part}{bus_part}{space}{time_part}"
+        return f"{direction_part}{bus_part} {time_part}"
 
     def update_display(self, lines):
         """Update LCD display with the given lines"""
@@ -93,15 +92,15 @@ class BusTimeDisplay:
         try:
             while True:
                 # Get arrivals
-                south_arrivals = self.get_bus_arrivals(SOUTH_URL)
                 north_arrivals = self.get_bus_arrivals(NORTH_URL)
+                south_arrivals = self.get_bus_arrivals(SOUTH_URL)
                 
-                # Format all 4 lines
+                # Format all 4 lines, North first then South
                 lines = []
-                for bus in south_arrivals:
-                    lines.append(self.format_line('South', bus))
                 for bus in north_arrivals:
                     lines.append(self.format_line('North', bus))
+                for bus in south_arrivals:
+                    lines.append(self.format_line('South', bus))
                 
                 # Update LCD
                 self.update_display(lines)
