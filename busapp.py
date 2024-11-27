@@ -1,5 +1,5 @@
 import requests
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import time
 from rpi_lcd import LCD
 
@@ -29,13 +29,16 @@ class BusTimeDisplay:
             # Process all arrivals
             for arrival in data:
                 expected_time = datetime.fromisoformat(arrival['expectedArrival'].replace('Z', '+00:00'))
-                minutes_until = int((expected_time - now).total_seconds() / 60)
+                # Subtract 30 seconds to account for display update frequency
+                buffer_time = timedelta(seconds=30)
+                adjusted_time = expected_time - buffer_time
+                minutes_until = int((adjusted_time - now).total_seconds() / 60)
                 
                 if minutes_until >= 0:  # Only include future arrivals
                     arrivals.append({
                         'line': arrival['lineName'],
                         'minutes': minutes_until,
-                        'arrival_time': expected_time.astimezone().strftime('%H:%M')
+                        'arrival_time': adjusted_time.astimezone().strftime('%H:%M')
                     })
             
             # Simply sort by minutes until arrival and take first two
