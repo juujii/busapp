@@ -40,7 +40,7 @@ The application is configured to monitor two TfL bus stops:
 - Northbound: <STOPID>
 - Southbound: <STOPID>
 
-To monitor your chosen bus stops, modify the `NORTH_URL` and `SOUTH_URL` variables at the top of the script. Stop ID's can be found through the (https://api.tfl.gov.uk/)[TFL's API documentation.]
+To monitor your chosen bus stops, modify the `NORTH_URL` and `SOUTH_URL` variables at the top of the script. Stop ID's can be found through the [TFL's API documentation.](https://api.tfl.gov.uk/)
 
 ## Display Format
 
