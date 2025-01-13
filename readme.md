@@ -41,7 +41,7 @@ The application is configured to monitor two TfL bus stops:
 - Northbound: <YOURSTOPIDS>
 - Southbound: <YOURSTOPIDS>
 
-To monitor your chosen bus stops, modify the `NORTH_URL` and `SOUTH_URL` variables at the top of the script. Stop ID's can be found through the [TFL's API documentation.](https://api.tfl.gov.uk/), or included in the (https://tfl.gov.uk/bus/stop/490006407W/edenham-way?lineId=23)[URL for a TFL stop] (490006407W in this case).
+To monitor your chosen bus stops, modify the `NORTH_URL` and `SOUTH_URL` variables at the top of the script. Stop ID's can be found through the [TFL's API documentation](https://api.tfl.gov.uk/), or included in the [URL for a TFL stop](https://tfl.gov.uk/bus/stop/490006407W/edenham-way?lineId=23) (490006407W in this case).
 
 ## Display Format
 
