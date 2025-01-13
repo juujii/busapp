@@ -32,7 +32,7 @@ A Raspberry Pi application that displays real-time London bus arrival times on a
    ```bash
    pip install requests rpi_lcd
    ```
-3. Update the STOPIDS on line 7 and 8 of the busapp.py
+3. Update the variables to your desired STOPID (as described under "Configuration")
 4. Ensure your LCD is properly connected to the Raspberry Pi's GPIO pins
 
 ## Configuration
