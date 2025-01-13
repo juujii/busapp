@@ -47,10 +47,10 @@ To monitor your chosen bus stops, modify the `NORTH_URL` and `SOUTH_URL` variabl
 
 The LCD displays four lines of information in the following format:
 ```
-N: Bus 76  17:15 9m
-N: Bus 141 17:16 10m
-S: Bus 76  17:20 14m
-S: Bus 141 17:22 16m
+N: Bus 12  17:15 9m
+N: Bus 23  17:16 10m
+S: Bus 12  17:20 14m
+S: Bus 23  17:22 16m
 ```
 
 Where:
