@@ -4,8 +4,8 @@ import time
 from rpi_lcd import LCD
 
 # TfL API endpoints
-SOUTH_URL = "https://api.tfl.gov.uk/StopPoint/490006169S1/arrivals"
-NORTH_URL = "https://api.tfl.gov.uk/StopPoint/490015109W/arrivals"
+SOUTH_URL = "https://api.tfl.gov.uk/StopPoint/<YOURSTOPIDS>/arrivals"
+NORTH_URL = "https://api.tfl.gov.uk/StopPoint/<YOURSTOPIDS>/arrivals"
 
 class BusTimeDisplay:
     def __init__(self):
@@ -62,8 +62,8 @@ class BusTimeDisplay:
     def format_line(self, direction, bus):
         """Format line with fixed-width spacing
         Format for LCD display:
-        "N: Bus 76  17:15 9m"
-        "N: Bus 141 17:16 10m"
+        "N: Bus 12  17:15 9m"
+        "N: Bus 23 17:16 10m"
         """
         # Direction (2 chars) + ': ' = 4 chars total
         direction_part = f"{direction[0]}: "  # Just take first letter

@@ -32,13 +32,14 @@ A Raspberry Pi application that displays real-time London bus arrival times on a
    ```bash
    pip install requests rpi_lcd
    ```
-3. Ensure your LCD is properly connected to the Raspberry Pi's GPIO pins
+3. Update the STOPIDS on line 7 and 8 of the busapp.py
+4. Ensure your LCD is properly connected to the Raspberry Pi's GPIO pins
 
 ## Configuration
 
 The application is configured to monitor two TfL bus stops:
-- Northbound: <STOPID>
-- Southbound: <STOPID>
+- Northbound: <YOURSTOPIDS>
+- Southbound: <YOURSTOPIDS>
 
 To monitor your chosen bus stops, modify the `NORTH_URL` and `SOUTH_URL` variables at the top of the script. Stop ID's can be found through the [TFL's API documentation.](https://api.tfl.gov.uk/)
 
